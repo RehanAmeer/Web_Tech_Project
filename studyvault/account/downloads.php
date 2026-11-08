@@ -1,0 +1,5 @@
+<?php
+require_once __DIR__ . '/../includes/auth.php'; require_login();
+$stmt = $pdo->prepare('SELECT d.downloaded_at, r.id, r.title, r.file_type, c.code AS course_code FROM downloads d JOIN resources r ON r.id = d.resource_id JOIN courses c ON c.id = r.course_id WHERE d.user_id = ? ORDER BY d.downloaded_at DESC'); $stmt->execute([current_user()['id']]); $rows = $stmt->fetchAll(); $page_title = 'Downloads'; require __DIR__ . '/../includes/header.php';
+?>
+<div class="page-header"><div><h1>Download history</h1><p class="muted">Resources you have downloaded.</p></div></div><?php if (!$rows): ?><div class="empty-state">You have not downloaded any resources yet.</div><?php else: ?><div class="table-wrap"><table class="table"><thead><tr><th>Resource</th><th>Course</th><th>Downloaded</th></tr></thead><tbody><?php foreach ($rows as $row): ?><tr><td><a href="<?= e(url('resource_details.php?id=' . $row['id'])) ?>"><?= e($row['title']) ?></a></td><td><?= e($row['course_code']) ?></td><td><?= e(format_datetime($row['downloaded_at'])) ?></td></tr><?php endforeach; ?></tbody></table></div><?php endif; ?><?php require __DIR__ . '/../includes/footer.php'; ?>
